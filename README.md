@@ -1,0 +1,1 @@
+Week 1: Reviewing networking fundamentals and exploring GCP VPCs
