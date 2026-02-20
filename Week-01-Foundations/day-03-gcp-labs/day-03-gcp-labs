@@ -1,0 +1,50 @@
+			
+##Objective
+to build a VPC with mutiple subnes 
+configure a firewall and launch a VM web server than anyone can reach
+
+## Enviroment details
+
+- Project name: playground-app
+- Region used: us-central
+- VPC Name: test-labs
+- Subnets Created
+	-Subnet a (IP Range 10.1.1.0/24)
+	-Subnet b (IP Range 10.1.2.0/24)
+- VM Name: Likkle-man
+- Public IP Enabled? Yes
+
+#How it works
+I created a main network with two separate regional areas
+In one area, I spun up a server and opened the firewall 
+so web traffic (HTTP) could get in
+
+# what i did (step by step)
+- Created a custom VPC network - in the configeration of the vpc 
+i set up two subnets with their own IP ranges 
+(this can be done out of the VPC but felt it was more efficent to 
+do it this way) 
+- Opened up the firewall for webtraffic (TCP port 80)
+- Created a VM inside Subnet-a 
+- installed Nginx (the web server) on the VM 
+- confirmed it worked by entering the public IP
+in a web browser from a different device
+
+##Key Takeaways 
+- VPC are global, but Subnets live in specific regions 
+- Firewalls control what goes in and out 
+- To make somthing accessable to the public in GCP it needs an external IP
+- you need administrator privilages to install software on linus
+sudo 
+
+##What broke and how i fixed it
+- "premission Denied" error when trying to update the server 
+*Remedy* typed sudo before the comand to inisiate admin
+- Web page wouldn't load
+checked all configuraion to ensure that it was configured correctly 
+only to ind out my IP address was a https request and not a http
+
+##Final thoughts 
+simple mistakes can seem overwhelimg but taking time and 
+confimring the process is fun and solving the problem is rewarding
+
