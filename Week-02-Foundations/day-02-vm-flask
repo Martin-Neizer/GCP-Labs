@@ -1,0 +1,31 @@
+			Topic Deploying a Flask App 
+
+## Objective
+ - understanding how to deploy a simple Flask app on Google Cloud VM
+and make it accessable from a web browser 
+
+## Whit i did ( clean slate approcah)
+
+- i started by deleting everything off my google cloud envirment , my defalt
+VPC and all vm's and every firewall rule
+- built everything from scratch a custom VPC so i had totoal control over the network 
+-spun up a new VM
+-set network tags on my VM to allow specific firewall rules (allow-ssh port22) &
+(web-app Port 5000) both on tcp 
+-deployed the app, set up my python enviroment (venv), installed Flask and ran the application
+- varified the external ip proving the tag-based firewall was working effectivly
+
+##Road blocks
+
+-not having the right IAM premmsions to excicute sudo commands via the comand line
+- speanding ages trying to understand why i don't have compute os admin login 
+- and instatiung it via IAM 
+
+
+## take away from this 
+
+Deploying securly means trusting nothing by defualt, this can be a bit harder
+and make process a bit longer, but it also helps you to learn more, get a better 
+understanding of the system and to uld have a more secure enviroment! 
+
+
