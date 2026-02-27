@@ -1,0 +1,95 @@
+				Day-03-w2-labs
+
+			Egress control and private VM architectre
+
+## Objective - understanding & controlling egress traffic 
+
+- build a clear mental model of how traffic leaves a VM in GCP and validate is through firewall testing 
+
+- understand how traffic leaves VM's in GCP and how firewall rules control putbound traffic
+
+##Key Concepts
+
+- Egress, Traffic leaving the VM ( using Curl )
+
+- Ingress, Traffic coming into the VM ( using ssh from my laptop to the VM)
+
+- Firewall Priority, rules are evaluated by priority, the lower the value
+the higher the priority
+
+- Protocol and port matching, firewall rules don't block the internet 
+they block specific combinations of
+Direction 
+Protocol (TCP/UDP/etc)
+Port(443,80,22,etc)
+Destination Range
+Target (tag or instance)
+
+## What i Did Practically 
+
+- SSH'd into my VM
+- Ran "curl httpa://ifconfig.me to confirm outboud traffic worked by default
+- created and egress rule tp deny for TCP port 443
+- Tested HTTPS (blocked)
+- Tested HTTP (still worked) 
+- Modified the rule to deny all protocols
+- confirmed all outbound traffic was blocked 
+
+## What confused me 
+- initally made an "Allow" rule instead of a "Deny" rule 
+
+## Mental Model
+
+now i visualize firewall rules as a serires of logical gates 
+
+Traffice leas the VM and Hits the Firewall. The Firewall checks:
+
+1 Does direction match
+2 Does target match
+3 Does protocl and port match 
+4 Does destination match 
+5 What is the priority
+
+if all match, the action (Allow or Deny) is applied
+
+Outbound traffice is allowed by default unless Explicitly denied 
+
+
+			## Part 2 ## 
+
+building on this i i wanted to harden my architecture by making a 
+Private VM with Cloud NAT 
+
+
+- i wanted to move form a basic public VM set up to a more secure
+production-style architectre where:
+
+The VM has no public IP
+It cannot be accessed directly from the internet 
+It can still access the internet for updates
+
+
+##what i did
+- Removed the external IP from my VM
+- Confirmed outboud Traffic stopped working 
+- Created a cloud Router
+- Created Cloud NAT attached to 
+-- The VPC , The correct region and all subnets within 
+- Tested again curl http://ifconfig.me confirmed outbound worked again
+
+## What confused me 
+
+- i didn't understand how browers based SSH worked wihtout an IP
+( wanted to lean how GCP acts as a tunnel) 
+-the Location of cloud NAT wasnt where i assumed it would be)
+
+
+## Summary
+
+Before my VM was directly exposed to the internet
+
+Now: 
+-It has no public IP 
+-Nobody candirectly connect to it from the internet 
+- it can still reach the internet safely via NAT 
+
