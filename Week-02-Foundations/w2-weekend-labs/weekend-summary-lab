@@ -1,0 +1,50 @@
+				##Week 2 Weekend Labs
+
+Topic: Zero-trust compute & private Networking (IAP + NAT)
+
+## Objective
+- Move away from "public IP!  and builda a hardened enviroment where a VM has no public entry porint. but can still be managed
+securley and access the internet for updates --- all Done through CLI---
+
+##Key concepts
+
+Identity-Aware Proxy (IAP) Tunneling
+
+-- instead of opening port 22 to the whole internet IAP acts like a secure "slide door"
+It checks my google identity (IAM) and then wraps my SSH traffic in an encrypted tunnel and 
+sends it to the VM theough googles internal network
+
+Cloud Nat (Network Address Translation)
+
+--a protocol that allows a private VM with no public ip address to communicate to the inernet
+but nothing from outside the defualt gate can initate a communication back
+
+Network Tags 
+
+-- a sort of stamp that tells the VPC firewall to apply rthese securtiy 
+rules associated with the tag(stamp) speciffally to this machine
+
+
+IAP IP Range (35.235.240.0/20) 
+
+a specific static range or ip addresses owned by Google needed 
+to all the IAP tunnel to pass though the network prrimeter 
+
+##what i did practically ----All via CLI----
+
+- created a custom VPC with 2 subnets 
+- configured a firewall rule 
+- created a VM instance 
+- applied the network tag
+- built a cloud Router and Cloud Nat Gatway to enable egress traffic 
+- successfuly SSHed via IAP 
+-Verified connectivity using curl -i google.com from inside the private shell
+
+## what confused me 
+- thee 4003 error: initally becuase i mist typed the tag wrong
+
+- using --help function to figure out my next steps, as i am trying to 
+get comfortable using just the CLI, it is very long winded and helps to 
+have a note pad so you can copy important information down 
+
+ 
