@@ -1,0 +1,42 @@
+						##Managed instance groups & Load Balancers 
+
+
+##Objective
+- Learn how to build a self-healing private fleet of servers that are protected by an internal load blancer
+
+##Key Concepts 
+
+-Instance Template-
+creating a template of a VM to ensure every server in y fleet is a perfect clone
+of the origional 
+
+-Managed Instance Group- (MIG)
+an automation manager that ensures that i have a certan amout of VM's running to 
+ensure security and gpu/cpu avaiablity 
+
+-Health Cheack-
+a protocol that sends a ping at a designated interval on the VM's specific port 
+ton confirm if the VM is still alive, if no answer then assum it is broken and replace 
+
+-Internal Load Balancer- (ILB)
+the " Private front desk" provides a single permanat IP address for the entire fleet.
+when other parts of the netwok want ot talk ot my servers they talk to the ILB and the ILB 
+decides which heaslth VM should handle the request 
+
+## what i did practically 
+
+- created and instance template: defined a secure VM with no publis IP and specific network tags
+- deployed a MIG: spawned 2 identical vM's automatically 
+- Preformed "chaos Testing" manually deleted a VM and watched the MIG automatically recreate it withinin seconds 
+- configured an internal load balancer, set up the backend service and health checks 
+to route internal traffic
+- Full Teardown, practised depeendency order to delete a complex architecture (unhooking the backend beforte deleting MIG)
+
+## What confused me 
+- Regiona vs Global Scopes. the Gcloud cli defualts to looking for global resources, which caused several " resource not found" issues 
+becuase my health checks were reginal.
+- The "silence" look, my VM's were being deleted and recreated repeatedly. i learned this happened because my VM's were "silent
+(no web server installed) causing the health check to fail, triggering "auto-healing" cycle
+
+
+
