@@ -1,0 +1,41 @@
+					Week 1 - day 2/3 Egress control & private 
+						VM Architecture 
+
+##Objective
+move away from "defualt-allow" publich instances and build a 
+production ready, private architect focussing on mastering egress(outboud) traffic and providing 
+internet access to isolated instances without exposing them to the public web.
+
+##ket concepts 
+--egress firewall rules--
+logical gates evalualted by 5- tuple match: Direction, Protocol, Port, Destination, and Target.
+
+
+
+##priority Loogic
+
+-Firewall rules are evaluated from the lowest numbers to the higest. 
+
+## cloud NAT & Cloud Router
+ 
+- this is the 'one-way' for your network. Cloud NAT ( controlled by a Cloud Router ) allows private VM's To ' communicate 
+behind a regional IP to the internet for specific tasks, whilst remaining unreachable by the outside world 
+
+
+##IAP (-idenetity Aware Proxy)
+
+protocol that allows you to tunnel SSH though googles infrastructre.
+
+
+			##Wthat i did Practically 
+
+- Stripped public access: removed the external IP from VM's to isolate it 
+- verified the isolation, confirmed the curl 
+- deployed cloud NAT, created a router and configured cloud nat to allow the VPC subnet to acces the web
+- validation successfuly ran apt-get update on a vm that had zero public footprint.
+-IAP Configueration: added a firewall rule to allow ingerss from googles internal range (35.235.240.0/24) 
+to enable secure browser-based SSH 
+
+
+
+
