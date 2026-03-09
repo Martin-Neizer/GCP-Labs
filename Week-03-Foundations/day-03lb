@@ -1,0 +1,46 @@
+			external Load balancer
+
+##objective 
+-to expand on my MIG and create a layer 7 load blancer to manage my 
+application traffic 
+
+## core componets 
+health check - tests wheater backend servers are working. if it fails
+the loadblaancer stops sending traffice to it 
+
+layer 7 load balancer -- this works at the application layer 
+(http/https)  instead of just forwarding traffic it understands web requests and can rout them to different 
+backend services based on rules 
+
+backend services- is the group of resourses that actually handel the traffic,
+this is usually a group of VM instances.
+
+instance group- a collection of VM's that are treated as one backend 
+the load balancer distributs the traffice across these machines.
+
+frontend- the public entry point of the loadbalancer. it provides the 
+external IP address where users connect.
+
+## what i did practically 
+
+- created VM instances to act as backened servers
+- configured simple web responses on the VM's
+- created and instance group for the backend servers 
+- configured a healthcheck to monitor the VM'v
+- created a backend service that points to the i=IG's 
+- configured a URL map 
+- created a target HTTP proxy 
+- created a forwqding rule that exposes the loadbalancer publicly 
+
+Once everything was configured i accessed the LB's IP and confirmed it served the website
+i then did it serval times to see if it would distribut the traffice across 
+the different VM's
+
+##what confused me 
+understanding the role of the HTTP proxy and the subnet proxy 
+
+remebering the command line for frontend services
+
+the need for a static ip for the lb 
+
+ 
