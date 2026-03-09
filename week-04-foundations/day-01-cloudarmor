@@ -1,0 +1,34 @@
+			##project Hardend Global LB on GCP 
+
+##objective design an deploy a production grade web infrastrcture on GCP 
+priotising " principal of least privilage" keeping backend server entierly 
+private while exposing a secure, global entry point 
+
+##core components/  what i did 
+private compute- deployed a MIG of apchie web servers all instances reside 
+in a private subnet with no external IP address, preventing directe internet exposure
+
+managed egress- implermented cloud NAT to allow private instances to securely fetch
+software updates without being reachable from the outside
+
+global traffic managemnt- configured a http Load balancer (envoy-base)
+to distribute traffic across the MIG 
+
+secure routing- utalised a proxy-only subnet and customized URL Maps 
+to manage traffic flow from the global edge to the private backend 
+
+Cloud Armor WAF- to protect against application layer attacks i implerments 
+a cloud armor security policey featuring:
+-SQL injection pre-configerd WAF expression (sqli-v33-stable) to detect and 
+block malicious database quries 
+
+-cross-site scripting XSS protection - did the same with (XSS-v33-stable_
+to prevent script injection attacks 
+
+-edge defencc : varified configuration buy simulatin a SQLi attack via curl 
+comforming 403 forbidden response from googe edge beore the traffic the backend 
+
+## key skills demonstrated#
+
+GCP / CLOUD AROUMOR (WAF) / LOAD BALANCING / IAAC / 
+NETWORK SECURITY / HIGH AVALIBILITY 
