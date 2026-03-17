@@ -1,0 +1,59 @@
+			Identity Hardening & cloud armor
+
+##Objective
+To build a production-grade secure web enviroment where the server is completly
+hidden from the public but accessabe via a controlled, inspected gateway 
+
+##Key concepts 
+
+-Private VPC & Cloud NAT
+A network with no external "front door." Cloud NAT acts as a 
+one-way mirror, letting the VM reach out for updates without letting the 
+internet see in.
+
+-IAP (Identity-Aware Proxy)
+A secure tunnel that verifies your Google Identity before allowing an SSH 
+connection, removing the need for a public IP or a "jump box."
+
+-Global Load Balancer
+The official "Front Gate." It provides a single public IP that 
+manages traffic and distributes it to your private backend instances.
+
+-Cloud Armor (WAF)
+A digital shield sitting on the Load Balancer that inspects every 
+request for malicious code (like SQL injection) and blocks it at the edge.
+
+## what i did practically 
+
+- created a custome VPC and VM with no external IP 
+
+- set up cloud nat and a cloud router for private internet access
+
+- configured IAP and Friewall rules to SSH into the machince securly 
+
+- placed the VM in a Unmannegd instance group and linked it to a global 
+HTTP load balancer 
+
+- Created cloud aromo security policy with SQLi Prevention rule and attached it to the 
+backend 
+
+- verfied the defence by triggering a 403 error using a mock SQL attack URL 
+
+- confirmed the block by reading the cloud logs 
+
+
+##Meantl model 
+
+i visualised a Fortress inside a Vault. the VM is the vualt. the LB is the guarded
+gate at the fortress wall. Cloud armor is the guard at the gate checking ID's and bags for wepons
+(malicious code) before anyone is allowd to walk down the tunnel to the vualt
+
+##summary in plain english 
+
+i built a website on a computer that is invisible to the internet
+i then set up a very smart front door that is the only way to reach the computer 
+to make it extra safe i hired a bouncer( cloud Armor) to stand at the door and block 
+anyone using common hacking tricks to get in. i then made an attempte myself and 
+comfirmd my set up was working by viewing the logs
+
+
