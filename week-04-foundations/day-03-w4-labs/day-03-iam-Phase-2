@@ -1,0 +1,102 @@
+		IAM conditions & impersonantion (Phase 2)
+
+Topic - IAM Advanced: service Account Impersonantion Delegagtgion,
+Conditional IAM Bindings (Time-bases), Least Privilege Resource Scoping
+
+##Objective 
+
+- Learn how to impersonate a service account using another service account (delegation Chain) 
+
+- Understand short-lived token generation via IAM Credentials API 
+
+- Practice least-privilege access using bucket-leve IAM bindings
+
+- Observe allow vs deny behavior with impersonated tokens 
+
+- Identify and remove uncondition IAM bindings to enforce conditional logic 
+
+
+
+##Key Concepts 
+
+- Impersonation Chain 
+User -> securitay-sa-> workload-sa->resource 
+
+- TokenCreator Role: required for generating access tokens on behalf of another SA
+
+- IAM conditions: add contextual logic (time-based) to access control 
+
+- conditional vs unconditional bindings: unconditional superseeds 
+
+- Time-based lockout: using request.time to enforce access windows 
+
+- 403 premissionDenied confirms IAM is enforced correctly 
+
+- storage IAM limitations: bucket IAM does not support IP-Based conditions 
+
+- Short-lived tokens, no key files required (safer and auditable) 
+
+
+## Practical work 
+
+- Creates 2 service accounts
+ -- workload-sa (target identity)
+ -- security-sa (delegator identity)
+
+- Granted Tokencreator role 
+ -- User->security-sa
+ --security-sa -> workload-sa
+
+- enabled IAM credentials API 
+
+- Generated a delegated impersonation token for workload-sa using security-sa
+
+- successfuly accessed 
+ -- allowed bucket -> 200 OK 
+ -- Forbidden Bucket -> 403 Premission denied 
+
+- Create a TIme-based IAM condition on the allowed bucket using request.time
+- removed the unconditional objectViewer binding 
+- Verified the bucket now respects ONLY the time-conditiond rule 
+- confirmed conditional access works inside window and denies outside 
+
+Confusions / Struggles
+•	IP based conditions failed → Storage IAM does not support request.client_ip
+•	Unclear initial distinction between unconditional and conditional IAM bindings
+•	Removing the unconditional binding required specifying --condition=None
+•	Delegate impersonation via gcloud does not use 
+	--impersonate-service-account-delegates; must use IAM Credentials API instead
+•	Understanding how delegated impersonation differs from direct impersonation
+•	General feeling of executing commands without deep understanding 
+	(will improve with new training structure)
+
+
+
+Mental Model
+“IAM identity is who you are, IAM Condition is when and in what context 
+you can act.
+Impersonation is borrowing another identity under strict, auditable rules.
+Conditional IAM turns identity into zero trust access by adding time, context, 
+and logic.”
+Breakdown:
+•	workload-sa → Least-privilege identity
+•	security-sa → Controlled impersonator
+•	User → Initiator of impersonation chain
+•	IAM Credentials API → Issues short lived tokens
+•	request.time → Gatekeeper for time windows
+•	Conditional binding → Active only when expression is true
+•	403 PermissionDenied → IAM behaving correctly
+•	IAM is not networking → Storage IAM cannot filter by client IP; 
+	use VPC SC or Cloud Armor for perimeter logic
+________________________________________
+Plain English Summary (Optional)
+Today I learned how to impersonate one service account using another 
+by creating a delegation chain. I generated short lived tokens for workload-sa using the 
+IAM Credentials API and verified access to allowed and 
+forbidden buckets. I added a time based IAM Condition to restrict access to 
+the allowed bucket for only one hour. I removed the unconditional
+binding so the condition would be enforced. I confirmed that IAM Conditions 
+work as expected: access is granted within the window and denied outside. I also learned 
+that Cloud Storage IAM does not support IP based conditions, so IP 
+restrictions must be handled elsewhere (VPC SC, Cloud Armor).
+
