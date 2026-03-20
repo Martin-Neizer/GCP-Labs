@@ -1,0 +1,47 @@
+		IAM Conditions, Temporary Access Windows, and Impersonation
+		Topic
+		Advanced IAM Conditions, Access Windows, and Service Account Impersonation on Cloud Storage Buckets.
+________________________________________
+##Objectives
+•	Understand and apply time based IAM Conditions
+•	Add multiple conditions to the same member/role
+•	Safely remove conditional bindings
+•	Debug impersonation failures and IAM errors
+•	Verify IAM condition logic using impersonation
+•	Execute real cloud security patterns used in PCSE level identity work
+________________________________________
+##Key Concepts Learned
+•	request.time is the IAM attribute used to evaluate time based access
+•	IAM Conditions are evaluated at request time, not creation time
+•	IAM allows multiple conditional bindings for the same identity+role
+•	If ANY conditional binding evaluates TRUE → permission granted
+•	Temporary access windows can override longer term business-hour restrictions
+•	Removal of a condition requires matching: 
+o	title
+o	description
+o	expression
+
+•	The Google Cloud CLI escapes operators visually (&lt;=, &gt;=, &amp;&amp;) but IAM stores real operators (<=, >=, &&)
+•	Impersonation requires roles/iam.serviceAccountTokenCreator on the target service account
+•	Service account impersonation produces short-lived OAuth tokens, not files
+•	Blank gcloud storage ls output = success on empty buckets
+________________________________________
+##Practical Work Completed
+•	Verified existing BusinessHours condition (08:00–18:00 UTC)
+•	Added a new temporary access window via IAM Condition 
+o	title=extraHour
+o	expression using timestamp-based expiration
+•	Successfully accessed bucket via impersonation despite being outside business hours
+•	Removed temporary IAM binding using exact match of conditional fields
+•	Revalidated deny/allow behavior after removal
+•	Cleaned up IAM policy, leaving only BusinessHours
+
+
+##Plain English Summary
+Today I mastered adding and removing conditional IAM bindings on a Cloud Storage
+bucket. I created a temporary timestamp based access window that allowed my 
+service account to access the bucket even outside the business-hours rule. 
+I removed the condition cleanly and verified access behavior through 
+impersonation. I strengthened my understanding of IAM condition syntax, 
+quoting rules, timestamp formatting, and service account impersonation. 
+I finished the session with a 15 question quiz and achieved a strong score.
