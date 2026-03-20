@@ -1,0 +1,59 @@
+			IAM Advanced: Service Account Impersonation Delegation
+			Conditional IAM Bindings (Time-based) Least Privilege Resource Scoping
+
+
+
+##Objective 
+
+- impersonate a service account using another service acocunt
+- understand short-lived token generation via IAM Credentials API
+- Practice least-privilege access using bucket-level IAM bindings
+- implement and test IAM conditions (Time-base Access windows)
+- Observe allow vs deny behavior with impersonated tokens
+- identify and remove unconditional IAM bindings to enforce condiyional logic
+
+
+## Key Concepts
+
+- Impersonation Chain :
+user->Security-sa->Workload->resource 
+
+- TokenCreator Role: Required for generation access tokens on behalf of another SA
+
+- IAM Conditions: Add contextual logic (time-based) to access conrtol 
+
+- Condional vs unconditional Bindings: unconditiona overrides conditional 
+
+- Times-based lockout: using request time to enforce access windows 
+
+- 403 PermissionDenied confrims IAM is enforced correctly 
+
+- Storage IAM Limitations: Bucket iAM does not support IP-based conditions
+
+- Short-lived tokens: No key files required; safer and auditable 
+
+
+
+## Practical work
+
+- created two service accounts 
+- created TokenCreato role
+
+- Enabled the IAM Credentials API 
+- Generated a delegated impersonation toaken for the 2 service accounts 
+
+- seccessfully caaessed allowd buket - 200 
+- denied access to forbidden bucket - 403 
+
+- created time-based IAM Condition on the allowed bucket using request.time
+- Removed the unconditional objectViewer binding 
+- varified the bucket now respects Onlt the time-conditiond rule
+- confirmed conditional access works inside window and denies outside 
+
+
+## Menatl Model 
+
+IAM identity is whou you are, IAM condition is when and what context you can act.
+impersonation is borrowing another identity into zero-trust access by adding time, contect and logic
+
+
