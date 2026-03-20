@@ -1,0 +1,61 @@
+			**cloud run, cloud SQL, IAM Trouble shooting
+
+##Objective 
+understand how cloud run connects to cloud SQL using a VPC connector and 
+runtime service identity 
+
+build cloud SQL private IP networking, enable service networking and deploy 
+cloud run tied to cloud SQL 
+
+Practice real-world IAM trouble shooting and clean up resourses safely 
+
+##Key Concepts 
+
+--- Cloud run--- Serveless comput platform, has 2 identities 
+* invoker identity -> controls who can call the service 
+* runtime service account (SA) -> controls what the service can access 
+
+- To access clould SQL, cloud run uses the runtime SA, not the invoker or the 
+user
+- Deploying Cloud Run with a custom SA required roles/iam.serviceAccountUser on
+that SA 
+
+
+--- Cloud SQL Private IP---
+Requires : 
+* servicenetworking.googleapis.com enabled
+* a reserved/24 address block
+* a VPC peering connection with google managed services
+
+- Cloud SQL Private IP appears in the VPC internal range, not the public
+-Cloud run -> cloud SQL Requiers:
+* a Serverless VPC connector 
+* The tuntime SA to have roles/cloudsql.client
+
+---Serverless VPC Access---
+* connects the cloud run to the internal resources inside your VPC 
+- Must be created with a /28 CIDR
+- without this connector, cloud run cannot see Private Ips or Cloud SQL
+
+## Practical Work Completed
+
+-- Created a VPC Access Connector with correct CIDR 
+-- Enabled Service Networking API
+-- Created a reservd private IP range
+-- Established VCP peering with servicenetworking.googleapis.com
+-- Created a Clod SQL instance 
+-- assinged Cloud Run service accovpunt premissions (cloudsql.client.serviceAccountUser)
+-- Deleted Cllodu SQL, Cloud Run,  VPC connectors and reserved ranged to elimate
+builling risk 
+
+##Mental Model 
+
+Cloud Run lives outside you VPC. Cloud SQL lives inseide oyu VPC to join
+them you need 3 thind 
+1. Vpc conettor 
+2. Service Networking peering
+3. IAM on the runtime SA
+
+The runtime service account authenticates to Cloud SQL using IAM (cloudsql.client) through the Auth Proxy.
+Invoker IAM only controls who can call the Cloud Run URL — not what the service can access.
+
