@@ -1,0 +1,36 @@
+
+Week 1 / Day 2 — Cloud Run IAM + Identity Token Invocation
+Topic
+Cloud Run (CLI only) — Private Service Deployment & Identity Token Invocation
+Objective
+Deploy a fully private Cloud Run service using CLI only, secure it with IAM (run.invoker), and perform an authenticated invocation using a JWT identity token.
+Key Concepts
+•	Cloud Run private deployments (--no-allow-unauthenticated)
+•	Invoker identity vs runtime identity
+•	Identity tokens (gcloud auth print-identity-token --audiences=)
+•	Cloud Run URL → required for token audience
+•	IAM binding: roles/run.invoker
+•	Curl authenticated requests (-H "Authorization: Bearer <token>")
+•	Cleanup discipline
+•	CLI first workflows
+Practical Work Completed
+•	Set project + region for Cloud Run
+•	Created runtime service account (CLI)
+•	Deployed Cloud Run service with explicit runtime SA
+•	Configured ingress + IAM lockdown
+•	Granted invoker role to user
+•	Generated a valid identity token (JWT)
+•	Successfully invoked Cloud Run (authenticated)
+•	Verified behavior (200 OK)
+•	Cleaned all resources (service + SA)
+Confusions / Fixes
+•	Correct syntax for command substitution when generating ID tokens
+•	Avoiding double https:// in SERVICE_URL
+•	Ensured ID_TOKEN variable actually captured JWT
+•	Cloud Run logging identity fields inconsistent → skipped, not required for ACE
+Mental Model Cloud Run authorizes invoker identity, not runtime SA.
+Access requires a JWT identity token with aud matching the Cloud Run URL.
+Cloud Run enforces IAM at request time; the runtime SA only applies inside the container.
+CLI workflow is deterministic: deploy → bind IAM → mint token → call → verify.
+Plain English Summary You deployed a locked down Cloud Run service using CLI only, authenticated into it using an identity token, confirmed everything worked correctly, and cleaned up your environment. You now fully understand the Cloud Run IAM pattern required for ACE.
+

@@ -1,0 +1,37 @@
+Topic Cloud Run deployment with separate invoker/runtime service accounts and time-based conditional IAM bindings.
+________________________________________
+Objective Deploy a private Cloud Run service, grant invoker access via a conditional IAM binding, test allow/deny behavior, and remove the condition cleanly.
+________________________________________
+Key Concepts
+•	Cloud Run has two separate identities: invoker SA (who can call it) and runtime SA (what it can access)
+•	IAM conditions use CEL expressions evaluated at request time by GCP — not client side
+•	Multiple conditions on the same member+role = access granted if ANY condition is true
+•	Unconditional binding overrides conditional — access granted regardless of time/context
+•	Version 3 IAM policy = conditional bindings are present
+•	Audit logs (admin actions) are always on; request logs (HTTP calls) need enabling
+•	--no-allow-unauthenticated blocks unauthenticated callers only — valid identity tokens still get through
+•	Line wrapping in Cloud Shell breaks CEL expressions — use \ continuation or keep commands on one line
+________________________________________
+Practical Work Completed
+•	Reused cloud-sa as runtime SA; created cr-invoker-sa as separate invoker SA
+•	Deployed hello-service (private, no unauthenticated access) with cloud-sa as runtime SA
+•	Granted roles/run.invoker to invoker-sa on hello-service
+•	Verified unconditional binding via get-iam-policy
+•	Removed unconditional binding; re-added with BusinessHours CEL condition (Mon-Fri 08-18 UTC)
+•	Granted roles/iam.serviceAccountTokenCreator to ma.neizer@gmail.com to enable impersonation
+•	Generated identity token impersonating invoker-sa; curled service → confirmed 403 (01:51 UTC, outside window)
+•	Added temporary hourWindow condition (until 03:00 UTC); confirmed 200
+•	Removed hourWindow condition cleanly using \ line continuation and full condition match including description
+•	Explored Cloud Logging — identified audit logs vs request logs; confirmed request logs not enabled by default
+________________________________________
+Confusions / Fixes
+•	user: vs serviceAccount: prefix — fixed quickly
+•	Line wrapping breaking CEL expressions — resolved with \ continuation
+•	Remove command required full condition match including description — not just title
+•	$TOKEN not persisting between commands — fixed by storing in same session
+•	Version 3 meaning — confused with update count; correct meaning is conditional bindings present
+________________________________________
+Mental Model Cloud Run is a two-door system. The front door (invoker) controls who can knock. The back door (runtime) controls what the service can touch inside GCP. IAM conditions are a time-lock on the front door — GCP checks the clock on every knock.
+________________________________________
+Plain English Summary Today Martin deployed a private Cloud Run service and properly separated the invoker and runtime identities for the first time with intention. He added a business-hours condition to the invoker binding, confirmed a 403 deny outside the window, then added a temporary condition to prove the allow path works. He debugged quoting issues, line-wrap problems, and condition-removal syntax largely independently. CLI fluency is improving — command structure is becoming instinctive; flag syntax and quoting still need repetition.
+

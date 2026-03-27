@@ -1,0 +1,37 @@
+Topic
+Cloud Functions 2nd Gen — HTTP trigger, deployment, invoker pattern, and project migration due to missing default infrastructure.Objective
+Deploy a private HTTP-triggered Cloud Function, understand the relationship between Cloud Functions and Cloud Run, and test access with an identity token.Key Concepts
+
+Cloud Functions 2nd Gen runs on Cloud Run under the hood — every function deployment creates a Cloud Run revision
+Cloud Run = full containerised service; Cloud Functions = single-purpose code triggered by HTTP or events
+requirements.txt tells GCP what libraries to install before running your code
+--entry-point tells GCP which specific function in your code to call
+--trigger-http = HTTP triggered; alternative is event triggers (Pub/Sub, Storage etc.)
+--source=. = deploy from current directory
+--gen2 = 2nd Generation runtime (built on Cloud Run)
+2nd Gen functions need roles/run.invoker on the underlying Cloud Run service — roles/cloudfunctions.invoker alone is not enough
+Default Compute SA is created automatically when Compute Engine is first used — missing SA causes Cloud Functions build failures
+Identity tokens expire after 1 hour — no manual cleanup needed
+Cloud Functions charges per invocation + compute time
+Practical Work Completed
+
+Hit Cloud Build infrastructure issues on old project (developer-489907) — missing Compute default SA
+Created new project gcp-practice-491400 with billing linked
+Granted ma.neizer all required developer roles on new project
+Enabled cloudfunctions, cloudbuild, run APIs in one command
+Confirmed Compute default SA exists in new project
+Created ~/hello-function directory with main.py and requirements.txt
+Created func-runtime-sa runtime SA
+Deployed hello-function — private, Python 3.11, HTTP trigger, 2nd Gen
+Granted ma.neizer invoker access — GCP automatically added run.invoker on underlying Cloud Run service
+Generated identity token and confirmed "Hello from Cloud Functions!" response
+Deleted function cleanly
+Confusions / Fixes
+
+roles/cloudfunctions.invoker vs roles/run.invoker — 2nd Gen needs both; GCP prompted to add run.invoker automatically
+Token generated as func-runtime-sa but invoker granted to ma.neizer — mismatch caused 403; fixed by generating token as own user
+--audiences flag doesn't work the same way for user accounts — used gcloud auth print-identity-token directly
+TOKEN$= vs TOKEN=$() — assignment syntax still occasionally reversed under fatigue
+Mental Model
+Cloud Functions is Cloud Run with training wheels — you write the code, GCP handles the container, build, and deployment. The security model is identical: runtime SA controls what the function can access; invoker controls who can call it.Plain English Summary
+Martin deployed his first Cloud Function on a fresh project after hitting infrastructure issues on the old one. The HTTP trigger pattern mirrors Cloud Run closely — same runtime/invoker split, same token-based testing. First function confirmed working with "Hello from Cloud Functions!" response. Quiz score 13/15.
