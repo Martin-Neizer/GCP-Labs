@@ -1,0 +1,35 @@
+Topic
+Pub/Sub triggered Cloud Function with conditional message routing.
+Objective
+Build a Pub/Sub → Cloud Function pipeline where the function reacts differently based on message content.
+Key Concepts
+
+Eventarc sits between Pub/Sub and the function — not a direct push
+Messages arrive base64 encoded — always decode first
+if/elif/else logic routes different message types to different actions
+--no-allow-unauthenticated not used on event triggers — flag doesn't exist for them
+Runtime SA needs roles/run.invoker on the underlying Cloud Run service
+Eventarc retries delivery if invocation fails — fix the permission, queued messages will deliver
+2nd Gen function logs appear under Cloud Run resource type in Cloud Logging
+
+Practical Work Completed
+
+Created Pub/Sub topic beer
+Deployed 2nd Gen Cloud Function with --trigger-topic
+Granted runtime SA roles/run.invoker
+Published 4 messages: order, restock, close, whisky
+Verified each message routed to correct action in logs
+Unknown message (whisky) correctly caught by else branch
+Clean teardown completed
+
+Confusions / Fixes
+
+Initial 403 errors — Eventarc couldn't invoke function, fixed by granting run.invoker
+Eventarc retried queued messages automatically once permission was fixed
+
+Mental Model
+One topic, one function, many message types. Each message drives a different action. Same pattern used in billing alerts, pipeline triggers, and notifications.
+Plain English Summary
+Built a Pub/Sub triggered function that reacted differently depending on the message content. Four messages published, four different responses logged. Fixed a 403 auth error mid-lab by granting the correct invoker role. Clean and working end to end.
+
+

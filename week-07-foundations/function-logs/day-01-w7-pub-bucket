@@ -1,0 +1,49 @@
+
+Week 2 / Day 1 (Morning) — Pub/Sub Event Triggered Cloud Functions
+________________________________________
+Topic Cloud Functions 2nd Gen with Pub/Sub event triggers — building an event-driven pipeline.
+________________________________________
+Objective Deploy a Cloud Function triggered by a Pub/Sub topic, publish a message, and verify the function fired via logs.
+________________________________________
+Key Concepts
+•	Pub/Sub = message bus: Publisher sends to Topic → Subscriber receives
+•	Messages held in topic until consumed or expired (default 7 days)
+•	--trigger-topic replaces --trigger-http for event-driven functions
+•	No --no-allow-unauthenticated needed — Pub/Sub uses GCP's internal event system
+•	Eventarc is the service that handles event routing for 2nd Gen triggers — enabled automatically
+•	base64.b64decode — Pub/Sub wraps messages in base64 for safe transport; function unwraps it
+•	print() in function code writes to Cloud Logging — use gcloud functions logs read to verify
+•	Pub/Sub trigger SA needs run.invoker on the underlying Cloud Run service
+•	--run-service-account flag explicitly sets the invoker SA for the underlying Cloud Run service
+•	Ingress blocks before IAM — Cloud Shell is outside VPC, ingress=internal blocks it at network layer
+________________________________________
+Practical Work Completed
+•	Enabled Pub/Sub API
+•	Created topic billing-allert (typo kept)
+•	Wrote main.py (cloud_event handler) and requirements.txt in ~/pubsub-function
+•	Deployed pubsub-function with --trigger-topic=billing-allert
+•	Hit auth errors — Pub/Sub SA missing run.invoker
+•	Deleted and redeployed with --run-service-account flag
+•	Published test message — confirmed Received message: test after fix in logs ✅
+•	Deleted both functions cleanly
+________________________________________
+Confusions / Fixes
+•	Auth errors on first deploy — Eventarc trigger SA needed run.invoker on Cloud Run service
+•	--trigger-topic flag — confused with --trigger-event in quiz
+•	gcloud pubsub topics publish — missing topics in command group
+•	Ingress vs IAM evaluation order — still coming up in quizzes, needs to stick
+________________________________________
+Mental Model Pub/Sub is a postbox. You drop a letter in (publish). The postbox holds it. Your function is the postman — when a letter arrives it picks it up and delivers it (processes it). The function doesn't need to be called directly — it reacts to the letter arriving automatically.
+________________________________________
+Process Checklist — Pub/Sub Triggered Cloud Function
+1.	Enable APIs (pubsub, cloudfunctions, cloudbuild, eventarc)
+2.	Create Pub/Sub topic (gcloud pubsub topics create TOPIC)
+3.	Write main.py (use @functions_framework.cloud_event) + requirements.txt
+4.	Create runtime SA
+5.	Deploy with --trigger-topic=TOPIC + --run-service-account=SA (fixes auth issues)
+6.	Publish test message (gcloud pubsub topics publish TOPIC --message="...")
+7.	Check logs (gcloud functions logs read FUNCTION --region=REGION --gen2)
+________________________________________
+Plain English Summary i successfully built his first event-driven Cloud Function today — a Pub/Sub triggered function that logs received messages. Hit auth issues on the first deploy due to the Eventarc trigger SA missing invoker permissions — resolved by redeploying with --run-service-account flag. The full pipeline was confirmed working via logs. Quiz score 11/15 — main gaps are flag names and the persistent ingress-before-IAM concept. Good session overall despite the friction.
+________________________________________
+
