@@ -1,0 +1,33 @@
+Topic
+Pub/Sub triggered Cloud Function connecting to Cloud SQL (public IP) with Secret Manager for credentials.
+Objective
+Build a complete serverless pipeline: Pub/Sub → Eventarc → Cloud Function → Cloud SQL, with secrets handled securely.
+Key Concepts
+
+Cloud SQL Auth Proxy handles secure connections without VPC configuration
+Public IP + authorized networks for practice (never production)
+--update-secrets mounts Secret Manager values as env vars (not --set-env-vars)
+Runtime SA needs cloudsql.client + secretmanager.secretAccessor
+Connection name format: PROJECT_ID:REGION:INSTANCE_NAME
+@functions_framework.cloud_event decorator for Pub/Sub triggers
+
+Practical Work Completed
+
+Created Cloud SQL instance (MySQL, db-f1-micro, public IP)
+Created database orders and user dbuser
+Stored DB password in Secret Manager
+Deployed Cloud Function with DB env vars + secret mount
+Published Pub/Sub message → record written to Cloud SQL → verified in logs
+Clean teardown of all resources
+
+Confusions / Fixes
+
+Secret Manager API not enabled — enabled mid-lab
+--set-env-vars vs --update-secrets confusion — --update-secrets is for secrets
+roles/cloudsql.client vs viewer — client is required for connections
+@functions_framework.cloud_event still slipping in quizzes
+
+Mental Model
+Pub/Sub fires the trigger → Eventarc routes it → Function wakes up → reads secret → connects to SQL → writes record → logs confirmation. Each piece has one job.
+Plain English Summary
+Built a real pipeline today — a Pub/Sub message triggered a Cloud Function that securely retrieved a database password from Secret Manager and wrote the message as a record into Cloud SQL. First time connecting serverless functions to a real database. Clean teardown completed. Quiz score 10/15 — detail gaps on SQL roles and secret flags.
