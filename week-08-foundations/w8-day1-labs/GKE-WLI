@@ -1,0 +1,41 @@
+Topic
+GKE Workload Identity — end-to-end rebuild from memory
+
+Objective
+Rebuild the full Workload Identity chain without prompting:
+cluster → GSA → KSA → binding → annotation → proof via logs
+
+Key Concepts
+- KSA (Kubernetes Service Account) lives in the cluster; created with kubectl
+- GSA (GCP Service Account) lives in IAM; created with gcloud
+- Workload Identity bridges the two — no key files needed
+- Binding grants the KSA permission to impersonate the GSA
+- Annotation tells the KSA which GSA to impersonate
+- Proof: kubectl logs shows GSA email as the active authenticated account
+- --workload-pool must be set at cluster creation — cannot be added after
+
+Practical Work Completed
+- Created GKE cluster with --workload-pool flag
+- Created GSA (gsa-sa) via gcloud
+- Created KSA (ksa-sa) via kubectl
+- Bound KSA to GSA with roles/iam.workloadIdentityUser
+- Annotated KSA with GSA email
+- Deployed test pod running google/cloud-sdk:slim as KSA
+- Confirmed GSA email appeared in kubectl logs — chain proven
+- Cleaned up: pod, cluster, GSA deleted cleanly
+
+Confusions / Fixes
+- --serviceaccount flag removed in newer kubectl — used --overrides instead
+- Chat interface mangled URLs into hyperlinks — commands still worked
+
+Mental Model
+Pod → KSA → GSA → GCP APIs
+Binding = permission to impersonate
+Annotation = which GSA to impersonate
+No key file anywhere in the chain
+
+Plain English Summary
+Rebuilt Workload Identity from near-memory with minimal prompting.
+The chain worked end-to-end — pod authenticated as the GSA without a key file.
+Key gap identified: GSA still needs IAM permissions on the target resource —
+Workload Identity working does not mean the GSA can 
