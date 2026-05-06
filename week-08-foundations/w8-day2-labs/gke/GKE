@@ -1,0 +1,41 @@
+GKE Network Policy — controlling pod-to-pod traffic
+
+Objective
+Apply a Network Policy to block frontend from reaching backend;
+prove it works before and after the policy is applied
+
+Key Concepts
+- By default all pods in a GKE cluster can talk to each other freely
+- Network Policy = firewall rules for pod-to-pod traffic inside a cluster
+- Policies use labels to select pods — not names or IPs
+- Pod names change on restart; labels stay consistent
+- ingress: [] = deny all inbound traffic to selected pods
+- --enable-network-policy must be set at cluster creation — cannot add after
+- Without it, Network Policies are created but completely ignored
+- kubectl exec POD -- COMMAND = run a command inside a running pod
+- curl exit code 28 = connection timed out = traffic blocked
+
+Practical Work Completed
+- Created cluster with --enable-network-policy flag
+- Deployed frontend and backend pods with labels
+- Proved free communication before policy (nginx page returned)
+- Created and applied Network Policy with ingress: []
+- Proved policy blocked traffic (curl exit code 28 = timeout)
+- Cleaned up: pods and cluster deleted
+
+Confusions / Fixes
+- Yesterday's lab failed because --enable-network-policy was missing
+- Today it worked correctly with the flag included
+
+Mental Model
+Network Policy = pod-level firewall
+Labels = how you identify which pods the policy applies to
+ingress: [] = no one can send traffic to these pods
+--enable-network-policy = the switch that makes enforcement real
+
+Plain English Summary
+Ssuccessfully proved Network Policy works when the cluster is created
+correctly. Before the policy — frontend reached backend freely. After applying
+the policy — connection timed out. The key lesson from this week: two things
+that look like the same problem (403 errors) have different causes —
+Workload Identity failure vs missing IAM role on the resource. 
