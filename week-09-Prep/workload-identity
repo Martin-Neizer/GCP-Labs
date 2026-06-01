@@ -1,0 +1,36 @@
+Week 9 / Day 4 — GKE + Cloud SQL + Workload Identity
+Topic GKE pod connecting to Cloud SQL via Auth Proxy and Workload Identity
+Objective Build a production-grade architecture where a GKE pod authenticates to Cloud SQL using Workload Identity — no key files, no IP allowlisting
+Key Concepts
+Workload Identity chain:
+•	Pod → KSA → GSA → GCP API
+•	The pod never holds credentials — it borrows the GSA identity through the KSA binding
+•	--workload-pool=PROJECT_ID.svc.id.goog must be set at cluster creation — cannot be added after
+Four Workload Identity setup steps:
+1.	Create GSA (gcloud iam service-accounts create)
+2.	Create KSA (kubectl create serviceaccount)
+3.	Bind KSA to GSA — grant roles/iam.workloadIdentityUser on the GSA to the KSA member (PROJECT_ID.svc.id.goog[NAMESPACE/KSA_NAME])
+4.	Annotate KSA with GSA email (kubectl annotate serviceaccount)
+Cloud SQL Auth Proxy:
+•	Runs as a sidecar container inside the same pod as your app
+•	App connects to 127.0.0.1 (localhost) — it thinks the database is local
+•	Proxy handles the encrypted, authenticated tunnel to Cloud SQL using the GSA identity
+•	No SSL cert management, no IP allowlisting needed
+•	GSA must have roles/cloudsql.client for the proxy to authenticate
+Practical Work Completed
+•	Created Cloud SQL instance (luffy), database (base), and user (justin) in us-central1
+•	Created GKE cluster (sunny) with --workload-pool flag and e2-small nodes
+•	Created GSA (gsa-sa) and granted it roles/cloudsql.client
+•	Created KSA (ksa-sa) and bound it to GSA with roles/iam.workloadIdentityUser
+•	Annotated KSA with GSA email
+•	Wrote pod manifest with two containers: Auth Proxy sidecar and MySQL app container
+•	Applied manifest with kubectl apply -f pod.yaml
+•	Exec'd into app container: kubectl exec -it sql-client -c app -- mysql -h 127.0.0.1 -u justin -ppassword123 base
+•	Verified connection with SHOW DATABASES — returned base database
+Confusions / Fixes
+•	First cluster used e2-micro nodes — too small to run kubelet agent reliably, caused "No agent available" error on exec
+•	Recreated cluster with e2-small — resolved immediately
+•	GSA survived cluster deletion (lives in IAM, not in cluster) — only KSA needed recreating
+•	mkdir pod.yaml attempted instead of nano pod.yaml — mkdir creates directories not files
+Mental Model The Auth Proxy is a bouncer sitting inside your pod. Your app whispers to the bouncer on localhost. The bouncer handles everything with Cloud SQL securely using the GSA identity. Your app never needs to know where Cloud SQL actually is or how to authenticate to it.
+Plain English Summary Built a GKE pod that connects to Cloud SQL without any passwords or key files in the application code. The pod borrows a Google service account identity through Workload Identity, and the Auth Proxy sidecar handles the secure authenticated connection to Cloud SQL. The app simply connects to localhost and the proxy does the rest. This is the standard production pattern for GKE to Cloud SQL connectivity in real-world GCP environments.
